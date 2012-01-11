@@ -24,13 +24,16 @@ pretty well.
   (train corpus
          (words "sub foo { return 'bar'; }")
          :perl))
-;; => {:perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
+;; => {:perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, 
+       :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
 
 (def corpus
   (train corpus
          (words "(defn foo [] 'bar')")
          :clojure))
-;; => {:clojure {"bar" 2.0, "foo" 2.0, "defn" 2.0}, :perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
+;; => {:clojure {"bar" 2.0, "foo" 2.0, "defn" 2.0}, 
+       :perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, 
+       :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
 
 (guess-language corpus (words "def add(x, y); a + b; end"))
 ;; => :ruby
@@ -41,6 +44,10 @@ pretty well.
 (guess-language corpus (words "(defn sub [return] (return))"))
 ;; => :perl
 ;; We do not have a great corpus and this is a ridiculous code snippet.
+
+(score-by-language corpus (words "(defn sub [return] (return))"))
+{:clojure -2.0794415416798357, :perl -0.6931471805599453, :ruby -2.772588722239781}
+;; Higher scores are better. 0.0 is the highest score. I know, that doesn't make a lot of sense.
 ```
 
 ## License
