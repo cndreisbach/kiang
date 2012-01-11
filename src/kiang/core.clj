@@ -22,7 +22,7 @@
    {}
    (vals corpus)))
 
-(defn prob
+(defn language-probability
   [corpus words lang]
   (let [word-counts (corpus lang)
         totals (totals corpus)]
@@ -32,17 +32,17 @@
      0.0
      words)))
 
-(defn score
+(defn score-by-language
   [corpus words]
   (into {}
         (map
          (fn [lang]
-           [lang (prob corpus words lang)])
+           [lang (language-probability corpus words lang)])
          (keys corpus))))
 
-(defn classify
+(defn guess-language
   [corpus words]
-  (let [score (score corpus words)]
+  (let [score (score-by-language corpus words)]
     (first
      (sort-by
       (fn [lang]
