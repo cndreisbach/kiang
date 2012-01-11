@@ -25,15 +25,15 @@ pretty well.
          (words "sub foo { return 'bar'; }")
          :perl))
 ;; => {:perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, 
-       :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
+;;     :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
 
 (def corpus
   (train corpus
          (words "(defn foo [] 'bar')")
          :clojure))
 ;; => {:clojure {"bar" 2.0, "foo" 2.0, "defn" 2.0}, 
-       :perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, 
-       :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
+;;     :perl {"bar" 2.0, "return" 2.0, "foo" 2.0, "sub" 2.0}, 
+;;     :ruby {"end" 2.0, "bar" 2.0, "foo" 2.0, "def" 2.0}}
 
 (guess-language corpus (words "def add(x, y); a + b; end"))
 ;; => :ruby
