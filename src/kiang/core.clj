@@ -5,9 +5,12 @@
 (import '[java.io File])
 
 (defn words [code]
-  (-> (str/lower-case code)
-      (str/replace #"[^\w\s-]" "")
-      (str/split #"\s+")))
+  (->> (-> (str/lower-case code)
+           (str/replace #"[^\w\s-]" "")
+           (str/split #"\s+"))
+       (filter (fn [word] (and
+                           (< 0 (count word) 15)
+                           (re-find #"[a-z]" word))))))
 
 (defn train
   [corpus words lang]
@@ -52,32 +55,82 @@
         (- (score lang)))
       (keys corpus)))))
 
-(def shootout-ext-map
-  {'bigloo' :scheme
-   'chicken' :scheme
-   'csharp' :csharp
-   'fpascal' :pascal
-   'gawk' :awk
-   'gcc' :c
-   'gforth' :forth
-   'ghc' :haskell
-   'gprolog' :prolog
-   'gpp' :c++
-   'guile' :scheme
-   'mawk' :awk
-   'mzscheme' :scheme
-   'psyco' :python
-   'swiprolog' :prolog})
 
-(defn shootout-files []
-  (map #(.toString %)
-       (filter #(.isFile %)
-               (-> "shootout/bench" io/resource io/as-file file-seq))))
+;; Everything below here needs to be pulled into separate namespaces.
+
+(def shootout-ext-map
+  {:bigloo :scheme
+   :chicken :scheme
+   :csharp :csharp
+   :fpascal :pascal
+   :gawk :awk
+   :gcc :c
+   :gforth :forth
+   :ghc :haskell
+   :gprolog :prolog
+   :gpp :c++
+   :guile :scheme
+   :jruby :ruby
+   :mawk :awk
+   :mzscheme :scheme
+   :psyco :python
+   :swiprolog :prolog})
+
+(def shootout-exts
+  [:bash
+   :bigloo
+   :chicken
+   :clojure
+   :csharp
+   :erlang
+   :fpascal
+   :gawk
+   :gcc
+   :gforth
+   :ghc
+   :gpp
+   :gprolog
+   :groovy
+   :guile
+   :io
+   :java
+   :javascript
+   :jruby
+   :lua
+   :mawk
+   :mercury
+   :mzscheme
+   :newlisp
+   :objc
+   :ocaml
+   :ocaml
+   :ooc
+   :perl
+   :php
+   :pike
+   :poplisp
+   :psyco
+   :python
+   :rebol
+   :ruby
+   :scala
+   :swiprolog
+   :tcl])
+
+(defn get-file-ext
+  [filename]
+  (keyword (last (str/split filename #"\."))))
 
 (defn get-lang
   [filename]
-  (let [ext (last (str/split filename #"\."))]
-    (shootout-ext-map ext (keyword ext))))
+  (let [ext (get-file-ext filename)]
+    (shootout-ext-map ext ext)))
+
+(defn shootout-files []
+  (->> (-> "shootout/bench" io/resource io/as-file file-seq)
+       (filter #(.isFile %))
+       (map #(.toString %))
+       (filter #(some #{(get-file-ext %)} shootout-exts))))
 
 (defn load-corpus-from-shootout
   []
@@ -87,3 +140,8 @@
    {}
    (shootout-files)))
 
+(import '[java.io FileWriter])
+
+(defn write-to-file [file-name obj]
+  (with-open [w (FileWriter. (File. file-name))]
+    (binding [*out* w *print-dup* true] (write obj :pretty true :stream *out*))))
