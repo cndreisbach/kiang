@@ -1,5 +1,8 @@
 (ns kiang.core
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [clojure.java.io :as io]))
+
+(import '[java.io File])
 
 (defn words [code]
   (-> (str/lower-case code)
@@ -48,3 +51,39 @@
       (fn [lang]
         (- (score lang)))
       (keys corpus)))))
+
+(def shootout-ext-map
+  {'bigloo' :scheme
+   'chicken' :scheme
+   'csharp' :csharp
+   'fpascal' :pascal
+   'gawk' :awk
+   'gcc' :c
+   'gforth' :forth
+   'ghc' :haskell
+   'gprolog' :prolog
+   'gpp' :c++
+   'guile' :scheme
+   'mawk' :awk
+   'mzscheme' :scheme
+   'psyco' :python
+   'swiprolog' :prolog})
+
+(defn shootout-files []
+  (map #(.toString %)
+       (filter #(.isFile %)
+               (-> "shootout/bench" io/resource io/as-file file-seq))))
+
+(defn get-lang
+  [filename]
+  (let [ext (last (str/split filename #"\."))]
+    (shootout-ext-map ext (keyword ext))))
+
+(defn load-corpus-from-shootout
+  []
+  (reduce
+   (fn [corpus file]
+     (train corpus (words (slurp file)) (get-lang file)))
+   {}
+   (shootout-files)))
+

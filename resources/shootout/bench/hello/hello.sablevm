@@ -1,0 +1,8 @@
+// $Id: hello.sablevm,v 1.12 2005-05-22 23:50:21 bfulgham Exp $
+// http://shootout.alioth.debian.org/
+
+public class hello {
+    public static void main(String args[]) {
+	System.out.print("hello world\n");
+    }
+}

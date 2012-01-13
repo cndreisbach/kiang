@@ -1,0 +1,14 @@
+#!/usr/bin/mzscheme -qu
+;;; -*- mode: scheme -*-
+;;; $Id: reversefile.mzscheme,v 1.3 2007-05-19 07:50:08 bfulgham Exp $
+;;; http://shootout.alioth.debian.org/
+;;; Provided by Bengt Kleberg
+
+(module reversefile mzscheme 
+  (let ([inport (current-input-port)])
+    (let rev ([lines null])
+      (let ([line (read-bytes-line inport)])
+	(if (eof-object? line)
+	    (for-each (lambda (l) (printf "~a\n" l))
+		      lines)
+	    (rev (cons line lines)))))))
