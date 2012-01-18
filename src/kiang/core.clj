@@ -1,12 +1,15 @@
 (ns kiang.core
-  (:use [clojure.pprint :only [pprint]])
+  (:use [clojure.pprint :only [pprint]]
+        [clojure.set :only [intersection]])
   (:require [clojure.string :as str]))
 
+(defn- split-and-strip [code]
+  (-> (str/lower-case code)
+           (str/replace #"[^\w\s-]" "")
+           (str/split #"\s+")))
 
 (defn words [code]
-  (->> (-> (str/lower-case code)
-           (str/replace #"[^\w\s-]" "")
-           (str/split #"\s+"))
+  (->> (split-and-strip code)
        (filter (fn [word] (and
                            (< 0 (count word) 15)
                            (re-find #"[a-z]" word))))))
@@ -18,6 +21,24 @@
      (update-in corpus [lang word] (fnil inc 1.0)))
    corpus
    words))
+
+(defn find-common-words
+  [corpus]
+  (apply
+   intersection
+   (map
+    (fn [words]
+      (set (keys words)))
+    (vals corpus))))
+
+(defn clean
+  [corpus]
+  (let [common-words (find-common-words corpus)]
+    (into {}
+          (map
+           (fn [lang]
+             [lang (apply dissoc (corpus lang) common-words)])
+           (keys corpus)))))
 
 (defn totals
   [corpus]
